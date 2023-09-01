@@ -13,6 +13,8 @@ target_sources(libkommit PRIVATE
     gitlog.cpp
     gitremote.cpp
     gittag.cpp
+    branch.h branch.cpp
+    types.h types.cpp
 
     models/abstractgititemsmodel.cpp
     models/logsmodel.cpp
@@ -87,6 +89,7 @@ set_target_properties(libkommit
 )
 
 target_link_libraries(libkommit
+    PkgConfig::LIBGIT2
     Qt::Core
     Qt::Widgets
     Qt::Concurrent

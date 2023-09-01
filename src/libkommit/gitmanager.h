@@ -6,6 +6,7 @@
 #include "blamedata.h"
 #include "commands/abstractcommand.h"
 #include "filestatus.h"
+#include "git2.h"
 #include "gitfile.h"
 #include "gitglobal.h"
 #include "gitremote.h"
@@ -25,6 +26,8 @@ class LogsModel;
 class StashesModel;
 class TagsModel;
 class AuthorsModel;
+class Tag;
+class Manager;
 
 enum LoadFlag {
     LoadNone = 0,
@@ -39,6 +42,30 @@ enum LoadFlag {
 Q_DECLARE_FLAGS(LoadFlags, LoadFlag)
 Q_DECLARE_OPERATORS_FOR_FLAGS(LoadFlags)
 
+template<typename T>
+class Result
+{
+public:
+    Result(const T &data, bool)
+    {
+    }
+    Result(const QString &msg, bool)
+    {
+    }
+
+private:
+    T mData;
+    bool mSuccess;
+    QString mErrorMessage;
+
+    friend class Manager;
+};
+
+struct Exception {
+    const int id;
+    const QString message;
+};
+
 class LIBKOMMIT_EXPORT Manager : public QObject
 {
     Q_OBJECT
@@ -48,6 +75,7 @@ class LIBKOMMIT_EXPORT Manager : public QObject
     Q_PROPERTY(bool isRebasing READ isRebasing WRITE setIsRebasing NOTIFY isRebasingChanged)
 
 public:
+    enum class BranchType { LocalBranch, RemoteBranch, AllBranches };
     enum ConfigType { ConfigGlobal, ConfigLocal };
 
     Manager();
@@ -76,14 +104,16 @@ public:
     // branches
     Q_REQUIRED_RESULT QString currentBranch() const;
     Q_REQUIRED_RESULT QPair<int, int> uniqueCommitsOnBranches(const QString &branch1, const QString &branch2) const;
-    Q_REQUIRED_RESULT QStringList branches() const;
-    Q_REQUIRED_RESULT QStringList remoteBranches() const;
+    void extracted(BranchType &type);
+    Q_REQUIRED_RESULT QStringList branches(BranchType type);
 
     // tags
+    void forEachTags(std::function<void(Tag *)> cb);
     Q_REQUIRED_RESULT QStringList tags() const;
     void createTag(const QString &name, const QString &message) const;
 
     // stashes
+    void forEachStash(std::function<void(Stash *)> cb);
     QList<Stash> stashes();
     void createStash(const QString &name = QString()) const;
     Q_REQUIRED_RESULT bool removeStash(const QString &name) const;
@@ -141,6 +171,8 @@ public:
     Q_REQUIRED_RESULT bool isRebasing() const;
     void setIsRebasing(bool newIsRebasing);
 
+    void commitsForEach();
+
 Q_SIGNALS:
     void pathChanged();
     void isMergingChanged();
@@ -148,6 +180,8 @@ Q_SIGNALS:
     void isRebasingChanged();
 
 private:
+    int findStashIndex(const QString &message) const;
+
     QString mPath;
     bool mIsValid{false};
     QMap<QString, Remote> mRemotes;
@@ -157,6 +191,7 @@ private:
     QStringList readAllNonEmptyOutput(const QStringList &cmd) const;
     QString escapeFileName(const QString &filePath) const;
     void loadAsync();
+    void check_lg2(int error);
 
     RemotesModel *const mRemotesModel;
     AuthorsModel *const mAuthorsModel;
@@ -165,6 +200,8 @@ private:
     LogsModel *const mLogsCache;
     StashesModel *const mStashesCache;
     TagsModel *const mTagsModel;
+
+    git_repository *_repo;
 
     friend class Stash;
     friend class RemotesModel;
