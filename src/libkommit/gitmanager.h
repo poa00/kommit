@@ -28,6 +28,8 @@ class TagsModel;
 class AuthorsModel;
 class Tag;
 class Manager;
+class Submodule;
+class FetchObserver;
 
 enum LoadFlag {
     LoadNone = 0,
@@ -43,14 +45,36 @@ Q_DECLARE_FLAGS(LoadFlags, LoadFlag)
 Q_DECLARE_OPERATORS_FOR_FLAGS(LoadFlags)
 
 template<typename T>
-class Result
+class Expeced
 {
 public:
-    Result(const T &data, bool)
+    Expeced(const T &data, bool success)
+        : mData{data}
+        , mSuccess{success}
     {
     }
-    Result(const QString &msg, bool)
+    Expeced(const QString &msg, bool success)
+        : mErrorMessage{msg}
+        , mSuccess{success}
     {
+    }
+
+    operator bool()
+    {
+        return mSuccess;
+    }
+
+    Q_REQUIRED_RESULT T data() const
+    {
+        return mData;
+    }
+    Q_REQUIRED_RESULT bool success() const
+    {
+        return mSuccess;
+    }
+    Q_REQUIRED_RESULT QString errorMessage() const
+    {
+        return mErrorMessage;
     }
 
 private:
@@ -87,7 +111,7 @@ public:
     QByteArray runGit(const QStringList &args) const;
 
     // common actions
-    void init(const QString &path);
+    bool init(const QString &path);
     void commit(const QString &message) const;
     void push() const;
 
@@ -106,6 +130,7 @@ public:
     Q_REQUIRED_RESULT QPair<int, int> uniqueCommitsOnBranches(const QString &branch1, const QString &branch2) const;
     void extracted(BranchType &type);
     Q_REQUIRED_RESULT QStringList branches(BranchType type);
+    Q_REQUIRED_RESULT bool removeBranch(const QString &branchName) const;
 
     // tags
     void forEachTags(std::function<void(Tag *)> cb);
@@ -115,23 +140,25 @@ public:
     // stashes
     void forEachStash(std::function<void(Stash *)> cb);
     QList<Stash> stashes();
-    void createStash(const QString &name = QString()) const;
+    bool createStash(const QString &name = QString()) const;
     Q_REQUIRED_RESULT bool removeStash(const QString &name) const;
     Q_REQUIRED_RESULT bool applyStash(const QString &name) const;
 
     // remotes
+    Remote *remote(const QString &name) const;
     Q_REQUIRED_RESULT QStringList remotes() const;
     Remote remoteDetails(const QString &remoteName);
-    Q_REQUIRED_RESULT bool removeBranch(const QString &branchName) const;
     Q_REQUIRED_RESULT bool addRemote(const QString &name, const QString &url) const;
     Q_REQUIRED_RESULT bool removeRemote(const QString &name) const;
     Q_REQUIRED_RESULT bool renameRemote(const QString &name, const QString &newName) const;
+    void fetch(const QString &remoteName, FetchObserver *observer = nullptr);
 
     // config
     Q_REQUIRED_RESULT QString config(const QString &name, ConfigType type = ConfigLocal) const;
     Q_REQUIRED_RESULT bool configBool(const QString &name, ConfigType type = ConfigLocal) const;
     void setConfig(const QString &name, const QString &value, ConfigType type = ConfigLocal) const;
     void unsetConfig(const QString &name, ConfigType type = ConfigLocal) const;
+    void forEachConfig(std::function<void(QString, QString)> cb);
 
     // files
     void addFile(const QString &file) const;
@@ -160,6 +187,7 @@ public:
     Q_REQUIRED_RESULT QList<FileStatus> diffBranches(const QString &from, const QString &to) const;
 
     // models
+    void forEachSubmodules(std::function<void(Submodule *)> callback);
     Q_REQUIRED_RESULT RemotesModel *remotesModel() const;
     Q_REQUIRED_RESULT SubmodulesModel *submodulesModel() const;
     Q_REQUIRED_RESULT BranchesModel *branchesModel() const;
@@ -187,6 +215,7 @@ private:
     QMap<QString, Remote> mRemotes;
     LoadFlags mLoadFlags{LoadAll};
     bool m_isMerging{false};
+    bool mIsDetached{false};
 
     QStringList readAllNonEmptyOutput(const QStringList &cmd) const;
     QString escapeFileName(const QString &filePath) const;

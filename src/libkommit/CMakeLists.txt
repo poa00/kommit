@@ -15,6 +15,9 @@ target_sources(libkommit PRIVATE
     gittag.cpp
     branch.h branch.cpp
     types.h types.cpp
+    signature.h signature.cpp
+
+    fetchobserver.h fetchobserver.cpp
 
     models/abstractgititemsmodel.cpp
     models/logsmodel.cpp

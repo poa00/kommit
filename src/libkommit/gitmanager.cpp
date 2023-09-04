@@ -3,7 +3,9 @@
 
 #include "gitmanager.h"
 
+#include "fetchobserver.h"
 #include "gitlog.h"
+#include "gitsubmodule.h"
 #include "gittag.h"
 #include "models/authorsmodel.h"
 #include "models/branchesmodel.h"
@@ -27,7 +29,24 @@
 
 #define BEGIN int err = 0;
 #define STEP err = err ? err:
-#define END(ret) return err ? Result{ret, true} Result{gitErrorMessage(err), false};
+#define END                                                                                                                                                    \
+    do {                                                                                                                                                       \
+        if (err)                                                                                                                                               \
+            qDebug() << "Error" << Q_FUNC_INFO << err << ":" << gitErrorMessage(err);                                                                          \
+    } while (false)
+
+#define PRINT_ERROR                                                                                                                                            \
+    do {                                                                                                                                                       \
+        if (err)                                                                                                                                               \
+            qDebug() << "Error" << Q_FUNC_INFO << err << ":" << gitErrorMessage(err);                                                                          \
+    } while (false)
+
+//(ret) return err ? Result{ret, true} Result{gitErrorMessage(err), false};
+#define THROW                                                                                                                                                  \
+    do {                                                                                                                                                       \
+        if (!err)                                                                                                                                              \
+            throw new Exception{err, gitErrorMessage(err)};                                                                                                    \
+    } while (false)
 
 namespace Git
 {
@@ -66,40 +85,37 @@ void Manager::setPath(const QString &newPath)
     if (n) {
         mIsValid = false;
     } else {
+        mPath = git_repository_workdir(_repo);
         mIsValid = true;
 
-        //          git_revspec rs;
-        //          git_object *o;
-        //          git_revparse_single(&o, _repo, "show-toplevel");
-
-        //          git_describe_result *r;
-        //          git_describe_workdir(&r, _repo, NULL);
-
-        //          git_buf buf = {0};
-        //          git_describe_format(&buf, r, NULL);
-        //          qDebug() << buf.ptr;
-    }
-
-    qDebug() << "n=" << n;
-    QProcess p;
-    p.setProgram(QStringLiteral("git"));
-    p.setArguments({QStringLiteral("rev-parse"), QStringLiteral("--show-toplevel")});
-    p.setWorkingDirectory(newPath);
-    p.start();
-    p.waitForFinished();
-    auto ret = p.readAllStandardOutput() + p.readAllStandardError();
-
-    if (ret.contains("fatal")) {
-        mPath = QString();
-        mIsValid = false;
-    } else {
-        mPath = ret.replace("\n", "");
-        mIsValid = true;
         loadAsync();
 
         setIsMerging(QFile::exists(mPath + QStringLiteral("/.git/MERGE_HEAD")));
         setIsRebasing(QFile::exists(mPath + QStringLiteral("/.git/REBASE_HEAD")));
+
+        mIsDetached = git_repository_head_detached(_repo);
     }
+
+    //    qDebug() << "n=" << n;
+    //    QProcess p;
+    //    p.setProgram(QStringLiteral("git"));
+    //    p.setArguments({QStringLiteral("rev-parse"), QStringLiteral("--show-toplevel")});
+    //    p.setWorkingDirectory(newPath);
+    //    p.start();
+    //    p.waitForFinished();
+    //    auto ret = p.readAllStandardOutput() + p.readAllStandardError();
+
+    //    if (ret.contains("fatal")) {
+    //        mPath = QString();
+    //        mIsValid = false;
+    //    } else {
+    //        mPath = ret.replace("\n", "");
+    //        mIsValid = true;
+    //        loadAsync();
+
+    //        setIsMerging(QFile::exists(mPath + QStringLiteral("/.git/MERGE_HEAD")));
+    //        setIsRebasing(QFile::exists(mPath + QStringLiteral("/.git/REBASE_HEAD")));
+    //    }
 
     Q_EMIT pathChanged();
 }
@@ -191,6 +207,28 @@ bool Manager::renameRemote(const QString &name, const QString &newName) const
     return !err;
 }
 
+void Manager::fetch(const QString &remoteName, FetchObserver *observer)
+{
+    git_remote *remote;
+    if (!git_remote_lookup(&remote, _repo, remoteName.toLocal8Bit().data()))
+        return;
+
+    git_fetch_options fetch_opts = GIT_FETCH_OPTIONS_INIT;
+
+    if (observer) {
+        fetch_opts.callbacks.update_tips = &git_helper_update_tips_cb;
+        fetch_opts.callbacks.sideband_progress = &git_helper_sideband_progress_cb;
+        fetch_opts.callbacks.transfer_progress = &git_helper_transfer_progress_cb;
+        fetch_opts.callbacks.credentials = &git_helper_credentials_cb;
+        fetch_opts.callbacks.payload = observer;
+    }
+
+    git_strarray ref;
+
+    git_remote_fetch(remote, &ref, &fetch_opts, "fetch");
+    git_remote_free(remote);
+}
+
 bool Manager::isIgnored(const QString &path)
 {
     auto tmp = readAllNonEmptyOutput({QStringLiteral("check-ignore"), path});
@@ -264,22 +302,55 @@ QList<FileStatus> Manager::diffBranches(const QString &from, const QString &to) 
     return files;
 }
 
+void Manager::forEachSubmodules(std::function<void(Submodule *)> callback)
+{
+    struct wrapper {
+        std::function<void(Submodule *)> callback;
+    };
+
+    auto cb = [](git_submodule *sm, const char *name, void *payload) -> int {
+        Q_UNUSED(name)
+
+        auto w = reinterpret_cast<wrapper *>(payload);
+        auto submodule = new Submodule{sm};
+
+        w->callback(submodule);
+        return 0;
+    };
+
+    wrapper w;
+    w.callback = callback;
+    git_submodule_foreach(_repo, cb, &w);
+}
+
 QString Manager::config(const QString &name, ConfigType type) const
 {
     BEGIN
     const char *buf = nullptr;
     git_config *cfg;
+    git_config *sys_cfg;
     switch (type) {
     case ConfigLocal:
         STEP git_config_open_default(&cfg);
+        STEP git_repository_config(&cfg, _repo);
+        //        STEP git_config_open_default(&cfg);
+        //        STEP git_config_open_level(&sys_cfg, cfg, GIT_CONFIG_LEVEL_LOCAL);
         break;
     case ConfigGlobal:
         STEP git_config_open_default(&cfg);
+        //        STEP git_config_open_level(&sys_cfg, cfg, GIT_CONFIG_LEVEL_LOCAL);
         break;
     }
-    STEP git_config_get_string(&buf, cfg, name.toLatin1().data());
+    git_config_entry *entry = NULL;
+    STEP git_config_get_entry(&entry, cfg, name.toLatin1().data());
+    PRINT_ERROR;
 
-    return buf;
+    if (!entry)
+        return {};
+
+    QString s = entry->value;
+    git_config_entry_free(entry);
+    return s;
 
     QStringList cmd;
     switch (type) {
@@ -373,6 +444,25 @@ void Manager::unsetConfig(const QString &name, ConfigType type) const
     cmd.append(name);
 
     runGit(cmd);
+}
+
+void Manager::forEachConfig(std::function<void(QString, QString)> calback)
+{
+    struct wrapper {
+        std::function<void(QString, QString)> calback;
+    };
+    wrapper w;
+    w.calback = calback;
+    git_config *cfg = nullptr;
+
+    auto cb = [](const git_config_entry *entry, void *payload) -> int {
+        auto w = reinterpret_cast<wrapper *>(payload);
+        w->calback(QString{entry->name}, QString{entry->value});
+        return 0;
+    };
+
+    git_config_foreach(cfg, cb, &w);
+    git_config_free(cfg);
 }
 
 int Manager::findStashIndex(const QString &message) const
@@ -546,13 +636,15 @@ QString Manager::run(const AbstractCommand &cmd) const
     return QString(runGit(cmd.generateArgs()));
 }
 
-void Manager::init(const QString &path)
+bool Manager::init(const QString &path)
 {
     mPath = path;
     runGit({QStringLiteral("init")});
 
+    BEGIN
     git_repository_init_options initopts = {GIT_REPOSITORY_INIT_OPTIONS_VERSION, GIT_REPOSITORY_INIT_MKPATH};
-    git_repository_init_ext(&_repo, path.toLatin1().data(), &initopts);
+    STEP git_repository_init_ext(&_repo, path.toLatin1().data(), &initopts);
+    return !err;
 }
 
 QByteArray Manager::runGit(const QStringList &args) const
@@ -578,6 +670,13 @@ QByteArray Manager::runGit(const QStringList &args) const
 
 QStringList Manager::ls(const QString &place) const
 {
+    //    auto cb = [](const char *root, const git_tree_entry *entry, void *payload) -> int {
+
+    //        return 0;
+    //    };
+    //    const git_tree *tree;
+    //    git_tree_walk(tree, GIT_TREEWALK_PRE, cb, NULL);
+
     auto buffer = readAllNonEmptyOutput({QStringLiteral("ls-tree"), QStringLiteral("--name-only"), QStringLiteral("-r"), place});
     QMutableListIterator<QString> it(buffer);
     while (it.hasNext()) {
@@ -653,6 +752,8 @@ void Manager::forEachTags(std::function<void(Tag *)> cb)
         git_tag *t;
         git_tag_lookup(&t, w->repo, oid_c);
 
+        if (!t)
+            return 0;
         auto tag = new Tag{t};
 
         w->cb(tag);
@@ -695,18 +796,21 @@ void Manager::createTag(const QString &name, const QString &message) const
 void Manager::forEachStash(std::function<void(Stash *)> cb)
 {
     struct wrapper {
+        Manager *manager;
         std::function<void(Stash *)> cb;
     };
 
     auto callback = [](size_t index, const char *message, const git_oid *stash_id, void *payload) {
-        Stash s{nullptr, message};
-        static_cast<wrapper *>(payload)->cb(&s);
+        auto w = static_cast<wrapper *>(payload);
+        Stash s{index, w->manager->_repo, message, stash_id};
+        w->cb(&s);
 
         return 0;
     };
 
     wrapper w;
     w.cb = cb;
+    w.manager = this;
     git_stash_foreach(_repo, callback, &w);
 }
 
@@ -735,9 +839,16 @@ QList<Stash> Manager::stashes()
     return ret;
 }
 
-void Manager::createStash(const QString &name) const
+bool Manager::createStash(const QString &name) const
 {
-    //    git_stash_save()
+    git_oid oid;
+    git_signature *sign;
+
+    BEGIN
+    STEP git_signature_default(&sign, _repo);
+    STEP git_stash_save(&oid, _repo, sign, name.toUtf8().data(), GIT_STASH_DEFAULT);
+    return !err;
+
     QStringList args{QStringLiteral("stash"), QStringLiteral("push")};
 
     if (!name.isEmpty())
@@ -778,6 +889,15 @@ bool Manager::applyStash(const QString &name) const
     return true;
 }
 
+Remote *Manager::remote(const QString &name) const
+{
+    git_remote *remote;
+    if (!git_remote_lookup(&remote, _repo, name.toLocal8Bit().data()))
+        return new Remote{remote};
+
+    return nullptr;
+}
+
 Remote Manager::remoteDetails(const QString &remoteName)
 {
     if (mRemotes.contains(remoteName))
@@ -791,30 +911,62 @@ Remote Manager::remoteDetails(const QString &remoteName)
 
 bool Manager::removeBranch(const QString &branchName) const
 {
-    auto ret = readAllNonEmptyOutput({QStringLiteral("branch"), QStringLiteral("-D"), branchName});
-    return true;
+    git_reference *ref;
+
+    BEGIN
+    STEP git_branch_lookup(&ref, _repo, branchName.toUtf8().data(), GIT_BRANCH_LOCAL);
+    STEP git_branch_delete(ref);
+    //    auto ret = readAllNonEmptyOutput({QStringLiteral("branch"), QStringLiteral("-D"), branchName});
+    return !err;
 }
 
 BlameData Manager::blame(const File &file)
 {
+    git_blame *blame;
+    git_blame_options options;
+
+    BEGIN
+    STEP git_blame_options_init(&options, GIT_BLAME_OPTIONS_VERSION);
+    STEP git_blame_file(&blame, _repo, file.fileName().toUtf8().data(), &options);
+    END;
+
+    if (err)
+        return {};
+
     BlameData b;
-    const auto lines = readAllNonEmptyOutput({QStringLiteral("--no-pager"), QStringLiteral("blame"), QStringLiteral("-l"), file.fileName()});
-    b.reserve(lines.size());
 
-    for (const auto &line : lines) {
+    auto lines = file.content().split('\n');
+
+    auto count = git_blame_get_hunk_count(blame);
+    for (size_t i = 0; i < count; ++i) {
+        auto hunk = git_blame_get_hunk_byindex(blame, i);
+
         BlameDataRow row;
-        row.commitHash = line.mid(0, 40);
-
-        auto metaIndex = line.indexOf(QLatin1Char(')'));
-        row.code = line.mid(metaIndex + 1);
-
-        auto hash = row.commitHash;
-        if (hash.startsWith(QLatin1Char('^')))
-            hash = hash.remove(0, 1);
-        row.log = mLogsCache->findLogByHash(hash, LogsModel::LogMatchType::BeginMatch);
+        row.commitHash = convertToString(&hunk->final_commit_id, 20);
+        row.code = lines.mid(hunk->final_start_line_number, hunk->lines_in_hunk).join('\n');
+        row.log = mLogsCache->findLogByHash(row.commitHash, LogsModel::LogMatchType::BeginMatch);
 
         b.append(row);
     }
+    git_blame_free(blame);
+
+    //    const auto lines = readAllNonEmptyOutput({QStringLiteral("--no-pager"), QStringLiteral("blame"), QStringLiteral("-l"), file.fileName()});
+    //    b.reserve(lines.size());
+
+    //    for (const auto &line : lines) {
+    //        BlameDataRow row;
+    //        row.commitHash = line.mid(0, 40);
+
+    //        auto metaIndex = line.indexOf(QLatin1Char(')'));
+    //        row.code = line.mid(metaIndex + 1);
+
+    //        auto hash = row.commitHash;
+    //        if (hash.startsWith(QLatin1Char('^')))
+    //            hash = hash.remove(0, 1);
+    //        row.log = mLogsCache->findLogByHash(hash, LogsModel::LogMatchType::BeginMatch);
+
+    //        b.append(row);
+    //    }
 
     return b;
 }
@@ -826,6 +978,48 @@ void Manager::revertFile(const QString &filePath) const
 
 QMap<QString, ChangeStatus> Manager::changedFiles() const
 {
+    struct wrapper {
+        QMap<QString, ChangeStatus> files;
+    };
+    auto cb = [](const char *path, unsigned int status_flags, void *payload) -> int {
+        auto w = reinterpret_cast<wrapper *>(payload);
+
+        ChangeStatus status;
+        if (status_flags & GIT_STATUS_WT_NEW)
+            status = ChangeStatus::Added;
+        else if (status_flags & GIT_STATUS_WT_MODIFIED)
+            status = ChangeStatus::Modified;
+        else if (status_flags & GIT_STATUS_WT_DELETED)
+            status = ChangeStatus::Removed;
+        else if (status_flags & GIT_STATUS_WT_RENAMED)
+            status = ChangeStatus::Renamed;
+        //        else if (status_flags & GIT_STATUS_CONFLICTED)
+        //            status = ChangeStatus::UpdatedButInmerged;
+        else
+            status = ChangeStatus::Unknown;
+        //        if (status_flags & GIT_STATUS_INDEX_TYPECHANGE) status = ChangeStatus::ty ;
+
+        qDebug() << QString{path} << (int)status << status_flags;
+        w->files.insert(QString{path}, status);
+        return 0;
+    };
+
+    wrapper w;
+    git_status_options opts;
+    git_status_options_init(&opts, GIT_STATUS_OPTIONS_VERSION);
+    opts.show = GIT_STATUS_SHOW_INDEX_AND_WORKDIR;
+    opts.flags = GIT_STATUS_OPT_DEFAULTS /*GIT_STATUS_OPT_INCLUDE_UNTRACKED | GIT_STATUS_OPT_INCLUDE_IGNORED |
+          GIT_STATUS_OPT_INCLUDE_UNMODIFIED | GIT_STATUS_OPT_EXCLUDE_SUBMODULES | GIT_STATUS_OPT_RECURSE_UNTRACKED_DIRS | GIT_STATUS_OPT_DISABLE_PATHSPEC_MATCH
+          | GIT_STATUS_OPT_RECURSE_IGNORED_DIRS | GIT_STATUS_OPT_RENAMES_HEAD_TO_INDEX | GIT_STATUS_OPT_RENAMES_INDEX_TO_WORKDIR |
+          GIT_STATUS_OPT_SORT_CASE_SENSITIVELY | GIT_STATUS_OPT_SORT_CASE_INSENSITIVELY | GIT_STATUS_OPT_RENAMES_FROM_REWRITES | GIT_STATUS_OPT_NO_REFRESH |
+          GIT_STATUS_OPT_UPDATE_INDEX | GIT_STATUS_OPT_INCLUDE_UNREADABLE | GIT_STATUS_OPT_INCLUDE_UNREADABLE_AS_UNTRACKED*/
+        ;
+
+    git_status_foreach_ext(_repo, &opts, cb, &w);
+
+    //    git_status_foreach(_repo, cb, &w);
+    return w.files;
+
     // status --untracked-files=all --ignored --short --ignore-submodules --porcelain
     QMap<QString, ChangeStatus> statuses;
     const auto buffer = QString(runGit({QStringLiteral("status"), QStringLiteral("--short")})).split(QLatin1Char('\n'));
@@ -913,24 +1107,6 @@ void Manager::setIsRebasing(bool newIsRebasing)
     emit isRebasingChanged();
 }
 
-QString convertToString(const git_oid *id, const int len)
-{
-    QString result = "";
-    int lengthOfString = len;
-
-    QString s;
-    for (int i = 0; i < lengthOfString; i++) {
-        s = QString("%1").arg(id->id[i], 0, 16);
-
-        if (s.length() == 1)
-            result.append("0");
-
-        result.append(s);
-    }
-
-    return result;
-}
-
 void Manager::commitsForEach()
 {
 #define GIT_SUCCESS 0
@@ -983,4 +1159,5 @@ void Manager::check_lg2(int error)
 
 } // namespace Git
 
+#include "gitsubmodule.h"
 #include "moc_gitmanager.cpp"

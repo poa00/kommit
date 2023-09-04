@@ -6,32 +6,12 @@ SPDX-License-Identifier: GPL-3.0-or-later
 
 #include "gitlog.h"
 
+#include "types.h"
 #include <git2/commit.h>
 #include <utility>
 
 namespace Git
 {
-
-namespace
-{
-QString convertToString(const git_oid *id, const int len)
-{
-    QString result = "";
-    int lengthOfString = len;
-
-    QString s;
-    for (int i = 0; i < lengthOfString; i++) {
-        s = QString("%1").arg(id->id[i], 0, 16);
-
-        if (s.length() == 1)
-            result.append("0");
-
-        result.append(s);
-    }
-
-    return result;
-}
-};
 
 const QString &Log::refLog() const
 {
@@ -112,7 +92,7 @@ Log::Log(git_commit *commit)
     mBody = QString{git_commit_body(commit)}.replace("\n", "");
 
     auto id = git_commit_id(commit);
-    mCommitHash = convertToString(id, 20);
+    mCommitHash = git_oid_tostr_s(id);
 
     auto parentCount = git_commit_parentcount(commit);
     for (unsigned int i = 0; i < parentCount; ++i) {

@@ -1,3 +1,9 @@
+/*
+SPDX-FileCopyrightText: 2021 Hamed Masafi <hamed.masfi@gmail.com>
+
+SPDX-License-Identifier: GPL-3.0-or-later
+*/
+
 #include <QString>
 
 #include "types.h"
@@ -19,4 +25,21 @@ QStringList convert(git_strarray *arr)
     return list;
 }
 
+QString convertToString(const git_oid *id, const int len)
+{
+    QString result = "";
+    int lengthOfString = len;
+
+    QString s;
+    for (int i = 0; i < lengthOfString; i++) {
+        s = QString("%1").arg(id->id[i], 0, 16);
+
+        if (s.length() == 1)
+            result.append("0");
+
+        result.append(s);
+    }
+
+    return result;
+}
 }

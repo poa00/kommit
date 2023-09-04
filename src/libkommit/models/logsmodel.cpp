@@ -374,7 +374,7 @@ void LogsModel::fill()
         git_revwalk_push_head(walker);
     } else {
         git_reference *ref;
-        auto n = git_branch_lookup(&ref, mGit->_repo, mBranch.toLatin1().data(), GIT_BRANCH_ALL);
+        auto n = git_branch_lookup(&ref, mGit->_repo, mBranch.toLocal8Bit().data(), GIT_BRANCH_ALL);
 
         if (n)
             return;
