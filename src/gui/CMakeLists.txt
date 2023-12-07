@@ -1,8 +1,7 @@
 include_directories(${CMAKE_SOURCE_DIR}/core)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-add_library(libkommitgui SHARED
-    core/repositorydata.h core/repositorydata.cpp)
+add_library(libkommitgui SHARED)
 generate_export_header(libkommitgui BASE_NAME libkommitgui)
 target_sources(libkommitgui PRIVATE
     core/appdialog.cpp
@@ -19,6 +18,9 @@ target_sources(libkommitgui PRIVATE
     core/commitsfiltermodel.cpp
     core/kmessageboxhelper.h
     core/kmessageboxhelper.cpp
+    core/repositorydata.h core/repositorydata.cpp
+    core/gravatarcache.h core/gravatarcache.cpp
+
     actions/abstractactions.cpp
     actions/abstractactions.h
     actions/branchactions.cpp
@@ -228,6 +230,7 @@ target_link_libraries(libkommitgui
     Qt::Core
     Qt::Widgets
     Qt::Concurrent
+    Qt::Network
 
     libkommit
     libkommitdiff

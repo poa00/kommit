@@ -5,8 +5,6 @@ SPDX-License-Identifier: GPL-3.0-or-later
 */
 
 #include "logdetailswidget.h"
-#include "KommitSettings.h"
-#include "kommit_appdebug.h"
 
 #include <entities/commit.h>
 #include <gitmanager.h>
@@ -54,22 +52,16 @@ void LogDetailsWidget::createText()
         QString color;
         switch (i.value()) {
         case Git::ChangeStatus::Modified:
-            color = KommitSettings::diffModifiedColor().name();
+            color = mChangedFilesColor.name();
             break;
         case Git::ChangeStatus::Added:
-            color = KommitSettings::diffAddedColor().name();
+            color = mAddedFilesColor.name();
             break;
         case Git::ChangeStatus::Removed:
-            color = KommitSettings::diffRemovedColor().name();
+            color = mRemovedFilesColor.name();
             break;
 
-        case Git::ChangeStatus::Unknown:
-        case Git::ChangeStatus::Unmodified:
-        case Git::ChangeStatus::Renamed:
-        case Git::ChangeStatus::Copied:
-        case Git::ChangeStatus::UpdatedButInmerged:
-        case Git::ChangeStatus::Ignored:
-        case Git::ChangeStatus::Untracked:
+        default:
             break;
         }
         if (mEnableFilesLinks)
@@ -88,26 +80,11 @@ void LogDetailsWidget::createText()
     QString date;
     QString commitDate;
     QString authDate;
-    qCDebug(KOMMIT_LOG) << "cal=" << KommitSettings::calendarType();
-    QCalendar cal(KommitSettings::calendarType());
-    /*switch (KommitSettings::calendarType()) {
-    case SettingsHelper::CalendarType::Gregorian:
-        cal = QCalendar(QCalendar::System::Gregorian);
-        break;
-    case SettingsHelper::CalendarType::Jalali:
-        cal = QCalendar(QCalendar::System::Julian);
-        break;
-    case SettingsHelper::CalendarType::Milankovic:
-        cal = QCalendar(QCalendar::System::Milankovic);
-        break;
-    case SettingsHelper::CalendarType::IslamicCivil:
-        cal = QCalendar(QCalendar::System::IslamicCivil);
-        break;
-    }*/
-    if (cal.isValid()) {
-        date = mLog->commitTime().toLocalTime().toString(QStringLiteral("yyyy-MM-dd HH:mm:ss"), cal);
-        commitDate = mLog->committer()->time().toLocalTime().toString(QStringLiteral("yyyy-MM-dd HH:mm:ss"), cal);
-        authDate = mLog->author()->time().toLocalTime().toString(QStringLiteral("yyyy-MM-dd HH:mm:ss"), cal);
+
+    if (mCalendar.isValid()) {
+        date = mLog->commitTime().toLocalTime().toString(QStringLiteral("yyyy-MM-dd HH:mm:ss"), mCalendar);
+        commitDate = mLog->committer()->time().toLocalTime().toString(QStringLiteral("yyyy-MM-dd HH:mm:ss"), mCalendar);
+        authDate = mLog->author()->time().toLocalTime().toString(QStringLiteral("yyyy-MM-dd HH:mm:ss"), mCalendar);
     } else {
         date = mLog->commitTime().toLocalTime().toString();
         commitDate = mLog->committer()->time().toLocalTime().toString();
@@ -140,7 +117,6 @@ void LogDetailsWidget::createText()
         auto emailHash = QCryptographicHash::hash(mLog->author()->email().toUtf8(), QCryptographicHash::Sha3_256).toHex().toLower();
         auto avatarUrl = "https://www.gravatar.com/avatar/" + emailHash;
         html.append(QString{"<img src=\"%1\" />"}.arg(QString{avatarUrl}));
-        qDebug() << avatarUrl;
         appendParagraph(html, i18n("Author"), QStringLiteral(R"(<a href="mailto:%2">%1 &lt;%2&gt;</a>)").arg(mLog->author()->name(), mLog->author()->email()));
     } else {
         appendParagraph(html, i18n("Committer"), QStringLiteral(R"(%1 &lt;%2&gt;)").arg(mLog->committer()->name(), mLog->committer()->email()));
@@ -244,6 +220,16 @@ QString LogDetailsWidget::createFileLink(const QString &file)
     return QStringLiteral(R"(<a href="file:%1">%1</a> )").arg(file);
 }
 
+QCalendar LogDetailsWidget::calendar() const
+{
+    return mCalendar;
+}
+
+void LogDetailsWidget::setCalendar(const QCalendar &calendar)
+{
+    mCalendar = calendar;
+}
+
 void LogDetailsWidget::self_anchorClicked(const QUrl &url)
 {
     const auto scheme = url.scheme().toLower();
@@ -293,6 +279,45 @@ void LogDetailsWidget::setEnableFilesLinks(bool newEnableFilesLinks)
         return;
     mEnableFilesLinks = newEnableFilesLinks;
     Q_EMIT enableFilesLinksChanged();
+}
+
+QColor LogDetailsWidget::addedFilesColor() const
+{
+    return mAddedFilesColor;
+}
+
+void LogDetailsWidget::setAddedFilesColor(const QColor &addedFilesColor)
+{
+    if (mAddedFilesColor == addedFilesColor)
+        return;
+    mAddedFilesColor = addedFilesColor;
+    emit addedFilesColorChanged();
+}
+
+QColor LogDetailsWidget::changedFilesColor() const
+{
+    return mChangedFilesColor;
+}
+
+void LogDetailsWidget::setChangedFilesColor(const QColor &changedFilesColor)
+{
+    if (mChangedFilesColor == changedFilesColor)
+        return;
+    mChangedFilesColor = changedFilesColor;
+    emit changedFilesColorChanged();
+}
+
+QColor LogDetailsWidget::removedFilesColor() const
+{
+    return mRemovedFilesColor;
+}
+
+void LogDetailsWidget::setRemovedFilesColor(const QColor &removedFilesColor)
+{
+    if (mRemovedFilesColor == removedFilesColor)
+        return;
+    mRemovedFilesColor = removedFilesColor;
+    emit removedFilesColorChanged();
 }
 
 #include "moc_logdetailswidget.cpp"

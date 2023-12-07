@@ -6,7 +6,10 @@ SPDX-License-Identifier: GPL-3.0-or-later
 
 #pragma once
 
+#include <QCalendar>
 #include <QTextBrowser>
+
+#include "libkommitwidgets_export.h"
 
 namespace Git
 {
@@ -14,12 +17,16 @@ class Commit;
 class Signature;
 }
 
-class LogDetailsWidget : public QTextBrowser
+class LIBKOMMITWIDGETS_EXPORT LogDetailsWidget : public QTextBrowser
 {
     Q_OBJECT
     Q_PROPERTY(bool enableCommitsLinks READ enableCommitsLinks WRITE setEnableCommitsLinks NOTIFY enableCommitsLinksChanged)
     Q_PROPERTY(bool enableEmailsLinks READ enableEmailsLinks WRITE setEnableEmailsLinks NOTIFY enableEmailsLinksChanged)
     Q_PROPERTY(bool enableFilesLinks READ enableFilesLinks WRITE setEnableFilesLinks NOTIFY enableFilesLinksChanged)
+
+    Q_PROPERTY(QColor addedFilesColor READ addedFilesColor WRITE setAddedFilesColor NOTIFY addedFilesColorChanged FINAL)
+    Q_PROPERTY(QColor changedFilesColor READ changedFilesColor WRITE setChangedFilesColor NOTIFY changedFilesColorChanged FINAL)
+    Q_PROPERTY(QColor removedFilesColor READ removedFilesColor WRITE setRemovedFilesColor NOTIFY removedFilesColorChanged FINAL)
 
 public:
     explicit LogDetailsWidget(QWidget *parent = nullptr);
@@ -35,12 +42,28 @@ public:
     Q_REQUIRED_RESULT bool enableFilesLinks() const;
     void setEnableFilesLinks(bool newEnableFilesLinks);
 
+    Q_REQUIRED_RESULT QColor addedFilesColor() const;
+    void setAddedFilesColor(const QColor &addedFilesColor);
+
+    Q_REQUIRED_RESULT QColor changedFilesColor() const;
+    void setChangedFilesColor(const QColor &changedFilesColor);
+
+    Q_REQUIRED_RESULT QColor removedFilesColor() const;
+    void setRemovedFilesColor(const QColor &removedFilesColor);
+
+    Q_REQUIRED_RESULT QCalendar calendar() const;
+    void setCalendar(const QCalendar &calendar);
+
 Q_SIGNALS:
     void hashClicked(const QString &hash);
     void fileClicked(const QString &file);
     void enableCommitsLinksChanged();
     void enableEmailsLinksChanged();
     void enableFilesLinksChanged();
+
+    void addedFilesColorChanged();
+    void changedFilesColorChanged();
+    void removedFilesColorChanged();
 
 private:
     void self_anchorClicked(const QUrl &url);
@@ -60,4 +83,8 @@ private:
     bool mEnableCommitsLinks{false};
     bool mEnableEmailsLinks{true};
     bool mEnableFilesLinks{true};
+    QColor mAddedFilesColor;
+    QColor mChangedFilesColor;
+    QColor mRemovedFilesColor;
+    QCalendar mCalendar;
 };
