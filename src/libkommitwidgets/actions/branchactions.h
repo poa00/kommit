@@ -7,12 +7,13 @@ SPDX-License-Identifier: GPL-3.0-or-later
 #pragma once
 
 #include "abstractactions.h"
+#include "libkommitwidgets_export.h"
 
 namespace Git
 {
 class Branch;
 }
-class BranchActions : public AbstractActions
+class LIBKOMMITWIDGETS_EXPORT BranchActions : public AbstractActions
 {
     Q_OBJECT
 

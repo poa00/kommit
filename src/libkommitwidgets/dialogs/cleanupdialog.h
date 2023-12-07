@@ -7,13 +7,14 @@ SPDX-License-Identifier: GPL-3.0-or-later
 #pragma once
 
 #include "appdialog.h"
+#include "libkommitwidgets_export.h"
 #include "ui_cleanupdialog.h"
 
 namespace Git
 {
 class CommandClean;
 }
-class CleanupDialog : public AppDialog, private Ui::CleanupDialog
+class LIBKOMMITWIDGETS_EXPORT CleanupDialog : public AppDialog, private Ui::CleanupDialog
 {
     Q_OBJECT
 

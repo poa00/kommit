@@ -4,13 +4,14 @@ SPDX-FileCopyrightText: 2021 Hamed Masafi <hamed.masfi@gmail.com>
 SPDX-License-Identifier: GPL-3.0-or-later
 */
 
-#include <QString>
-
 #pragma once
+
+#include "libkommitwidgets_export.h"
+#include <QString>
 
 class QWidget;
 
-class KMessageBoxHelper
+class LIBKOMMITWIDGETS_EXPORT KMessageBoxHelper
 {
 public:
     KMessageBoxHelper();

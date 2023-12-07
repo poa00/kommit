@@ -7,9 +7,10 @@ SPDX-License-Identifier: GPL-3.0-or-later
 #pragma once
 
 #include "appdialog.h"
+#include "libkommitwidgets_export.h"
 #include "ui_mergeopenfilesdialog.h"
 
-class MergeOpenFilesDialog : public AppDialog, private Ui::MergeOpenFilesDialog
+class LIBKOMMITWIDGETS_EXPORT MergeOpenFilesDialog : public AppDialog, private Ui::MergeOpenFilesDialog
 {
     Q_OBJECT
 

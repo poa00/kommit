@@ -7,6 +7,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
 #pragma once
 
 #include "appdialog.h"
+#include "libkommitwidgets_export.h"
 #include "ui_commitpushdialog.h"
 
 namespace Git
@@ -15,7 +16,7 @@ class Manager;
 }
 class ChangedFileActions;
 class ChangedFilesModel;
-class CommitPushDialog : public AppDialog, private Ui::CommitPushDialog
+class LIBKOMMITWIDGETS_EXPORT CommitPushDialog : public AppDialog, private Ui::CommitPushDialog
 {
     Q_OBJECT
 

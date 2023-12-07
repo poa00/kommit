@@ -7,6 +7,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
 #pragma once
 
 #include "appdialog.h"
+#include "libkommitwidgets_export.h"
 #include "ui_filehistorydialog.h"
 
 namespace Git
@@ -15,7 +16,7 @@ class Manager;
 class File;
 }
 
-class FileHistoryDialog : public AppDialog, private Ui::FileHistoryDialog
+class LIBKOMMITWIDGETS_EXPORT FileHistoryDialog : public AppDialog, private Ui::FileHistoryDialog
 {
     Q_OBJECT
 

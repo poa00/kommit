@@ -9,8 +9,9 @@ SPDX-License-Identifier: GPL-3.0-or-later
 #include "ui_ignorefiledialog.h"
 
 #include "appdialog.h"
+#include "libkommitwidgets_export.h"
 
-class IgnoreFileDialog : public AppDialog, private Ui::IgnoreFileDialog
+class LIBKOMMITWIDGETS_EXPORT IgnoreFileDialog : public AppDialog, private Ui::IgnoreFileDialog
 {
     Q_OBJECT
 

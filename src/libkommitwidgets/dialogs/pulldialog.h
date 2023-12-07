@@ -7,13 +7,14 @@ SPDX-License-Identifier: GPL-3.0-or-later
 #pragma once
 
 #include "appdialog.h"
+#include "libkommitwidgets_export.h"
 #include "ui_pulldialog.h"
 
 namespace Git
 {
 class Manager;
 }
-class PullDialog : public AppDialog, private Ui::PullDialog
+class LIBKOMMITWIDGETS_EXPORT PullDialog : public AppDialog, private Ui::PullDialog
 {
     Q_OBJECT
 

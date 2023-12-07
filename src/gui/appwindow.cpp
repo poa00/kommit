@@ -24,15 +24,15 @@ SPDX-License-Identifier: GPL-3.0-or-later
 #include "diffwindow.h"
 #include "models/logsmodel.h"
 #include "multipagewidget.h"
+#include "pages/authorswidget.h"
+#include "pages/branchesstatuswidget.h"
+#include "pages/commitswidget.h"
+#include "pages/historyviewwidget.h"
+#include "pages/remoteswidget.h"
+#include "pages/stasheswidget.h"
+#include "pages/submoduleswidget.h"
+#include "pages/tagswidget.h"
 #include "settings/settingsmanager.h"
-#include "widgets/authorswidget.h"
-#include "widgets/branchesstatuswidget.h"
-#include "widgets/commitswidget.h"
-#include "widgets/historyviewwidget.h"
-#include "widgets/remoteswidget.h"
-#include "widgets/stasheswidget.h"
-#include "widgets/submoduleswidget.h"
-#include "widgets/tagswidget.h"
 #include <KommitSettings.h>
 
 #include <commands/commandclean.h>

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "libkommitwidgets_export.h"
 #include "ui_commitdetails.h"
 
 namespace Git
@@ -7,7 +8,7 @@ namespace Git
 class Commit;
 }
 
-class CommitDetails : public QWidget, private Ui::CommitDetails
+class LIBKOMMITWIDGETS_EXPORT CommitDetails : public QWidget, private Ui::CommitDetails
 {
     Q_OBJECT
 

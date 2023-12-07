@@ -6,7 +6,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
 
 #include "treemodel.h"
 
-#include "kommitwidgets_appdebug.h"
+#include "libkommitwidgets_appdebug.h"
 #include <QModelIndex>
 
 #include <KLocalizedString>

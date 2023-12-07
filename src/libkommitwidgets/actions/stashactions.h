@@ -7,8 +7,9 @@ SPDX-License-Identifier: GPL-3.0-or-later
 #pragma once
 
 #include "abstractactions.h"
+#include "libkommitwidgets_export.h"
 
-class StashActions : public AbstractActions
+class LIBKOMMITWIDGETS_EXPORT StashActions : public AbstractActions
 {
     Q_OBJECT
 

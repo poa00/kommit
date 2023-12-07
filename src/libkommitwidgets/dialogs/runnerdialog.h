@@ -9,6 +9,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
 #include <QElapsedTimer>
 
 #include "appdialog.h"
+#include "libkommitwidgets_export.h"
 #include "ui_runnerdialog.h"
 
 #include <QProcess>
@@ -18,7 +19,7 @@ namespace Git
 class AbstractCommand;
 class Manager;
 }
-class RunnerDialog : public AppDialog, private Ui::RunnerDialog
+class LIBKOMMITWIDGETS_EXPORT RunnerDialog : public AppDialog, private Ui::RunnerDialog
 {
     Q_OBJECT
 

@@ -9,8 +9,9 @@ SPDX-License-Identifier: GPL-3.0-or-later
 #include "ui_notedialog.h"
 
 #include "appdialog.h"
+#include "libkommitwidgets_export.h"
 
-class NoteDialog : public AppDialog, private Ui::NoteDialog
+class LIBKOMMITWIDGETS_EXPORT NoteDialog : public AppDialog, private Ui::NoteDialog
 {
     Q_OBJECT
 

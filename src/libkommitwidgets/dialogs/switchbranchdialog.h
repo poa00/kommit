@@ -7,13 +7,14 @@ SPDX-License-Identifier: GPL-3.0-or-later
 #pragma once
 
 #include "appdialog.h"
+#include "libkommitwidgets_export.h"
 #include "ui_switchbranchdialog.h"
 
 namespace Git
 {
 class CommandSwitchBranch;
 }
-class SwitchBranchDialog : public AppDialog, private Ui::SwitchBranchDialog
+class LIBKOMMITWIDGETS_EXPORT SwitchBranchDialog : public AppDialog, private Ui::SwitchBranchDialog
 {
     Q_OBJECT
 

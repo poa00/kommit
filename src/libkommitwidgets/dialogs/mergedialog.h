@@ -7,6 +7,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
 #pragma once
 
 #include "appdialog.h"
+#include "libkommitwidgets_export.h"
 #include "ui_mergedialog.h"
 
 namespace Git
@@ -14,7 +15,7 @@ namespace Git
 class CommandMerge;
 class Manager;
 }
-class MergeDialog : public AppDialog, private Ui::MergeDialog
+class LIBKOMMITWIDGETS_EXPORT MergeDialog : public AppDialog, private Ui::MergeDialog
 {
     Q_OBJECT
 public:

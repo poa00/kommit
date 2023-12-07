@@ -10,6 +10,8 @@ SPDX-License-Identifier: GPL-3.0-or-later
 #include <QMap>
 #include <QObject>
 
+#include "libkommitwidgets_export.h"
+
 #define ADD_ACTION_IMPL(name, text, slot, enabled)                                                                                                             \
     _##name = new QAction(this);                                                                                                                               \
     _##name->setText(i18n(text));                                                                                                                              \
@@ -46,7 +48,7 @@ class Manager;
 
 class QWidget;
 class QMenu;
-class AbstractActions : public QObject
+class LIBKOMMITWIDGETS_EXPORT AbstractActions : public QObject
 {
     Q_OBJECT
 

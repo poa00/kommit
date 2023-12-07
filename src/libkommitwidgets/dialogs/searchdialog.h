@@ -7,6 +7,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
 #pragma once
 
 #include "appdialog.h"
+#include "libkommitwidgets_export.h"
 #include "ui_searchdialog.h"
 
 namespace Git
@@ -15,7 +16,7 @@ class Manager;
 }
 
 class QStandardItemModel;
-class SearchDialog : public AppDialog, private Ui::SearchDialog
+class LIBKOMMITWIDGETS_EXPORT SearchDialog : public AppDialog, private Ui::SearchDialog
 {
     Q_OBJECT
 

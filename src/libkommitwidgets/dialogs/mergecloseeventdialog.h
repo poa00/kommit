@@ -7,9 +7,10 @@ SPDX-License-Identifier: GPL-3.0-or-later
 #pragma once
 
 #include "appdialog.h"
+#include "libkommitwidgets_export.h"
 #include "ui_mergecloseeventdialog.h"
 
-class MergeCloseEventDialog : public AppDialog, private Ui::CloseEventDialog
+class LIBKOMMITWIDGETS_EXPORT MergeCloseEventDialog : public AppDialog, private Ui::CloseEventDialog
 {
     Q_OBJECT
 

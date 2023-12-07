@@ -9,7 +9,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
 #include "dialogs/mergeopenfilesdialog.h"
 // #include "settings/settingsmanager.h"
 #include "core/editactionsmapper.h"
-#include "kommitwidgets_appdebug.h"
+#include "libkommitwidgets_appdebug.h"
 #include "widgets/codeeditor.h"
 #include "widgets/segmentsmapper.h"
 
@@ -17,7 +17,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
 #include <KLocalizedString>
 #include <KMessageBox>
 
-#include "kommitwidgets_appdebug.h"
+#include "libkommitwidgets_appdebug.h"
 
 #include <QFile>
 #include <QFileInfo>
@@ -109,6 +109,7 @@ void MergeWindow::init()
 
     connect(m_ui.plainTextEditMine, &CodeEditor::customContextMenuRequested, this, &MergeWindow::codeEditors_customContextMenuRequested);
     connect(m_ui.plainTextEditTheir, &CodeEditor::customContextMenuRequested, this, &MergeWindow::codeEditors_customContextMenuRequested);
+    // TODO: check these dulicated lines
     connect(m_ui.plainTextEditResult, &CodeEditor::blockSelected, this, &MergeWindow::slotPlainTextEditResultBlockSelected);
     connect(m_ui.plainTextEditResult, &CodeEditor::blockSelected, this, &MergeWindow::slotPlainTextEditResultBlockSelected);
     connect(m_ui.plainTextEditResult, &CodeEditor::blockSelected, this, &MergeWindow::slotPlainTextEditResultBlockSelected);

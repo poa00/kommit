@@ -7,6 +7,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
 #pragma once
 
 #include "appdialog.h"
+#include "libkommitwidgets_export.h"
 #include "ui_filestreedialog.h"
 
 namespace Git
@@ -16,7 +17,7 @@ class Manager;
 
 class FileActions;
 class TreeModel;
-class FilesTreeDialog : public AppDialog, private Ui::FilesTreeDialog
+class LIBKOMMITWIDGETS_EXPORT FilesTreeDialog : public AppDialog, private Ui::FilesTreeDialog
 {
     Q_OBJECT
 

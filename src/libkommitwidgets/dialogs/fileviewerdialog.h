@@ -6,6 +6,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
 
 #pragma once
 
+#include "libkommitwidgets_export.h"
 #include "ui_fileviewerdialog.h"
 
 #include <QPointer>
@@ -20,7 +21,7 @@ namespace Git
 class Manager;
 class File;
 }
-class FileViewerDialog : public KParts::MainWindow, private Ui::FileViewerDialog
+class LIBKOMMITWIDGETS_EXPORT FileViewerDialog : public KParts::MainWindow, private Ui::FileViewerDialog
 {
     Q_OBJECT
 

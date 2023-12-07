@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>675</width>
-    <height>344</height>
+    <height>379</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -107,6 +107,18 @@
    <item>
     <widget class="QWidget" name="widgetCommitterInfo" native="true">
      <layout class="QHBoxLayout" name="horizontalLayout">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
       <item>
        <widget class="QLabel" name="label_3">
         <property name="minimumSize">
@@ -160,6 +172,11 @@
     <layout class="QFormLayout" name="formLayout">
      <item row="0" column="0">
       <widget class="QLabel" name="labelRefType">
+       <property name="font">
+        <font>
+         <bold>true</bold>
+        </font>
+       </property>
        <property name="text">
         <string>Ref:</string>
        </property>
@@ -174,6 +191,11 @@
      </item>
      <item row="1" column="0">
       <widget class="QLabel" name="label_6">
+       <property name="font">
+        <font>
+         <bold>true</bold>
+        </font>
+       </property>
        <property name="text">
         <string>Parent:</string>
        </property>
@@ -191,6 +213,11 @@
      </item>
      <item row="2" column="0">
       <widget class="QLabel" name="label_9">
+       <property name="font">
+        <font>
+         <bold>true</bold>
+        </font>
+       </property>
        <property name="text">
         <string>Child:</string>
        </property>
@@ -208,6 +235,11 @@
      </item>
      <item row="3" column="0">
       <widget class="QLabel" name="label_10">
+       <property name="font">
+        <font>
+         <bold>true</bold>
+        </font>
+       </property>
        <property name="text">
         <string>Changed files:</string>
        </property>

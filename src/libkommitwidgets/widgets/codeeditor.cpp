@@ -6,8 +6,8 @@ SPDX-License-Identifier: GPL-3.0-or-later
 
 #include "codeeditor.h"
 #include "codeeditorsidebar.h"
-#include "kommitwidgets_appdebug.h"
 #include "kommitwidgetsglobaloptions.h"
+#include "libkommitwidgets_appdebug.h"
 
 #include <KSyntaxHighlighting/Definition>
 #include <KSyntaxHighlighting/FoldingRegion>
@@ -22,7 +22,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
 
 #include <QtMath>
 
-class SegmentData : public QTextBlockUserData
+class LIBKOMMITWIDGETS_EXPORT SegmentData : public QTextBlockUserData
 {
 public:
     SegmentData(Diff::Segment *segment, int lineNumber, bool empty = false);
@@ -538,7 +538,7 @@ void CodeEditor::highlightSegment(Diff::Segment *segment)
     mSideBar->update();
     qCDebug(KOMMIT_WIDGETS_LOG()) << mCurrentSegment;
     return;
-    qCDebug(KOMMIT_WIDGETS_LOG) << "Segment not found";
+    qCDebug(KOMMIT_WIDGETS_LOG()) << "Segment not found";
 }
 
 void CodeEditor::clearAll()

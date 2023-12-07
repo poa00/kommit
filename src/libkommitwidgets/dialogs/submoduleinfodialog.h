@@ -7,6 +7,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
 #pragma once
 
 #include "appdialog.h"
+#include "libkommitwidgets_export.h"
 #include "ui_submoduleinfodialog.h"
 
 namespace Git
@@ -14,7 +15,7 @@ namespace Git
 class AddSubmoduleCommand;
 class Manager;
 }
-class SubmoduleInfoDialog : public AppDialog, private Ui::SubmoduleInfoDialog
+class LIBKOMMITWIDGETS_EXPORT SubmoduleInfoDialog : public AppDialog, private Ui::SubmoduleInfoDialog
 {
     Q_OBJECT
 

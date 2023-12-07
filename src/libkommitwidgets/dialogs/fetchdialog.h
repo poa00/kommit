@@ -7,6 +7,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
 #pragma once
 
 #include "appdialog.h"
+#include "libkommitwidgets_export.h"
 #include "ui_fetchdialog.h"
 
 namespace Git
@@ -15,7 +16,7 @@ class Manager;
 class FetchObserver;
 }
 
-class FetchDialog : public AppDialog, private Ui::FetchDialog
+class LIBKOMMITWIDGETS_EXPORT FetchDialog : public AppDialog, private Ui::FetchDialog
 {
     Q_OBJECT
 

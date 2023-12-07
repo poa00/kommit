@@ -7,9 +7,10 @@ SPDX-License-Identifier: GPL-3.0-or-later
 #pragma once
 
 #include "appdialog.h"
+#include "libkommitwidgets_export.h"
 #include "ui_taginfodialog.h"
 
-class TagInfoDialog : public AppDialog, private Ui::TagInfoDialog
+class LIBKOMMITWIDGETS_EXPORT TagInfoDialog : public AppDialog, private Ui::TagInfoDialog
 {
     Q_OBJECT
 

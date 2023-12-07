@@ -7,9 +7,10 @@ SPDX-License-Identifier: GPL-3.0-or-later
 #pragma once
 
 #include "appdialog.h"
+#include "libkommitwidgets_export.h"
 #include "ui_diffopendialog.h"
 
-class DiffOpenDialog : public AppDialog, private Ui::DiffOpenDialog
+class LIBKOMMITWIDGETS_EXPORT DiffOpenDialog : public AppDialog, private Ui::DiffOpenDialog
 {
     Q_OBJECT
 

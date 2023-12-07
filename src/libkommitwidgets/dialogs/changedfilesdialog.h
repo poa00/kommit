@@ -7,11 +7,12 @@ SPDX-License-Identifier: GPL-3.0-or-later
 #pragma once
 
 #include "dialogs/appdialog.h"
+#include "libkommitwidgets_export.h"
 #include "ui_changedfilesdialog.h"
 
 class ChangedFilesModel;
 class ChangedFileActions;
-class ChangedFilesDialog : public AppDialog, private Ui::ChangedFilesDialog
+class LIBKOMMITWIDGETS_EXPORT ChangedFilesDialog : public AppDialog, private Ui::ChangedFilesDialog
 {
     Q_OBJECT
 

@@ -5,7 +5,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
 */
 
 #include "appmainwindow.h"
-#include "kommitwidgets_appdebug.h"
+#include "libkommitwidgets_appdebug.h"
 
 #include <QCloseEvent>
 #include <QEventLoop>

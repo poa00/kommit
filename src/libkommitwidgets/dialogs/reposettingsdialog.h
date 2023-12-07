@@ -7,9 +7,10 @@ SPDX-License-Identifier: GPL-3.0-or-later
 #pragma once
 
 #include "appdialog.h"
+#include "libkommitwidgets_export.h"
 #include "ui_reposettingsdialog.h"
 
-class RepoSettingsDialog : public AppDialog, private Ui::RepoSettingsDialog
+class LIBKOMMITWIDGETS_EXPORT RepoSettingsDialog : public AppDialog, private Ui::RepoSettingsDialog
 {
     Q_OBJECT
 

@@ -8,6 +8,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
 
 #include "appdialog.h"
 #include "entities/file.h"
+#include "libkommitwidgets_export.h"
 #include "ui_fileblamedialog.h"
 
 namespace Git
@@ -15,7 +16,7 @@ namespace Git
 class Manager;
 }
 
-class FileBlameDialog : public AppDialog, private Ui::FileBlameDialog
+class LIBKOMMITWIDGETS_EXPORT FileBlameDialog : public AppDialog, private Ui::FileBlameDialog
 {
     Q_OBJECT
 

@@ -7,6 +7,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
 #pragma once
 
 #include "appdialog.h"
+#include "libkommitwidgets_export.h"
 #include "ui_selectbranchestodiffdialog.h"
 
 namespace Git
@@ -14,7 +15,7 @@ namespace Git
 class Manager;
 }
 
-class SelectBranchesToDiffDialog : public AppDialog, private Ui::SelectBranchesToDiffDialog
+class LIBKOMMITWIDGETS_EXPORT SelectBranchesToDiffDialog : public AppDialog, private Ui::SelectBranchesToDiffDialog
 {
     Q_OBJECT
 
