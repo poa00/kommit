@@ -90,13 +90,11 @@ AppWindow::AppWindow()
     if (KommitSettings::openLastRepo()) {
         QSettings s;
         auto p = s.value(QStringLiteral("last_repo")).toString();
-        mGit->open(p);
-        initRecentFiles(p);
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-        QtConcurrent::run(this, &AppWindow::loadRemotes);
-#else
-        QtConcurrent::run(&AppWindow::loadRemotes, this);
-#endif
+
+        if (!p.isEmpty()) {
+            mGit->open(p);
+            initRecentFiles(p);
+        }
     }
 }
 
@@ -104,11 +102,6 @@ AppWindow::AppWindow(const QString &path)
 {
     init();
     mGit->open(path);
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    QtConcurrent::run(this, &AppWindow::loadRemotes);
-#else
-    QtConcurrent::run(&AppWindow::loadRemotes, this);
-#endif
 }
 
 AppWindow::~AppWindow()
@@ -239,13 +232,6 @@ void AppWindow::initRecentFiles(const QString &newItem)
     }
 }
 
-void AppWindow::loadRemotes()
-{
-    const auto remotes = mGit->remotes();
-    for (const auto &r : remotes)
-        volatile auto remote = mGit->remoteDetails(r);
-}
-
 void AppWindow::repoStatus()
 {
     ChangedFilesDialog d(mGit, this);
@@ -286,12 +272,6 @@ void AppWindow::recentActionTriggered()
     mGit->open(p);
 
     initRecentFiles(p);
-
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    QtConcurrent::run(this, &AppWindow::loadRemotes);
-#else
-    QtConcurrent::run(&AppWindow::loadRemotes, this);
-#endif
 }
 
 void AppWindow::commitPushAction()
