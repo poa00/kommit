@@ -1,7 +1,6 @@
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-add_library(libkommitwidgets SHARED
-    widgets/commitdetails.h widgets/commitdetails.cpp widgets/commitdetails.ui)
+add_library(libkommitwidgets SHARED)
 generate_export_header(libkommitwidgets BASE_NAME libkommitwidgets)
 
 macro(kommitwidgets_add_dir dir)
@@ -74,7 +73,7 @@ set_target_properties(libkommitwidgets
 set_target_properties(
     libkommitwidgets PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER org.kde.kommit
-    MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
+    MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
     MACOSX_BUNDLE TRUE
     WIN32_EXECUTABLE TRUE

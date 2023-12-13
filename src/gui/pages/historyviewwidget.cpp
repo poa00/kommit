@@ -8,7 +8,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
 #include "actions/commitactions.h"
 #include "diffwindow.h"
 #include "models/logsmodel.h"
-#include "widgets/graphpainter.h"
+#include <widgets/graphpainter.h>
 
 #include <entities/commit.h>
 #include <gitmanager.h>
@@ -27,8 +27,8 @@ HistoryViewWidget::HistoryViewWidget(Git::Manager *git, AppWindow *parent)
     // textBrowser->setEnableCommitsLinks(true);
 
     connect(treeViewHistory, &TreeView::itemActivated, this, &HistoryViewWidget::slotTreeViewHistoryItemActivated);
-    // connect(textBrowser, &LogDetailsWidget::hashClicked, this, &HistoryViewWidget::slotTextBrowserHashClicked);
-    // connect(textBrowser, &LogDetailsWidget::fileClicked, this, &HistoryViewWidget::slotTextBrowserFileClicked);
+    connect(widgetCommit, &CommitDetails::hashClicked, this, &HistoryViewWidget::slotTextBrowserHashClicked);
+    connect(widgetCommit, &CommitDetails::fileClicked, this, &HistoryViewWidget::slotTextBrowserFileClicked);
     connect(treeViewHistory, &TreeView::customContextMenuRequested, this, &HistoryViewWidget::slotTreeViewHistoryCustomContextMenuRequested);
 }
 

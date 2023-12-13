@@ -99,20 +99,20 @@ void CommitsWidget::init()
     connect(treeViewRepo, &TreeView::itemActivated, this, &CommitsWidget::slotTreeViewRepoItemActivated);
     connect(treeViewRepo, &QTreeView::customContextMenuRequested, this, &CommitsWidget::slotTreeViewRepoCustomContextMenuRequested);
     connect(treeViewHistory, &TreeView::itemActivated, this, &CommitsWidget::slotTreeViewHistoryItemActivated);
-    connect(textBrowser, &LogDetailsWidget::hashClicked, this, &CommitsWidget::slotTextBrowserHashClicked);
     connect(treeViewHistory, &TreeView::itemActivated, this, &CommitsWidget::slotTreeViewHistoryItemActivated);
-    connect(textBrowser, &LogDetailsWidget::fileClicked, this, &CommitsWidget::slotTextBrowserFileClicked);
+    connect(widgetCommitDetails, &CommitDetails::hashClicked, this, &CommitsWidget::slotTextBrowserHashClicked);
+    connect(widgetCommitDetails, &CommitDetails::fileClicked, this, &CommitsWidget::slotTextBrowserFileClicked);
     connect(treeViewHistory, &QTreeView::customContextMenuRequested, this, &CommitsWidget::slotTreeViewHistoryCustomContextMenuRequested);
     connect(lineEditFilter, &QLineEdit::textChanged, this, &CommitsWidget::slotLineEditFilterTextChanged);
 }
 
 void CommitsWidget::slotTreeViewHistoryItemActivated(const QModelIndex &index)
 {
-    auto log = mHistoryModel->fromIndex(mFilterModel->mapToSource(index));
-    if (!log)
+    auto commit = mHistoryModel->fromIndex(mFilterModel->mapToSource(index));
+    if (!commit)
         return;
 
-    textBrowser->setLog(log);
+    widgetCommitDetails->setCommit(commit);
 }
 
 void CommitsWidget::slotTextBrowserHashClicked(const QString &hash)
@@ -126,12 +126,12 @@ void CommitsWidget::slotTextBrowserHashClicked(const QString &hash)
 
 void CommitsWidget::slotTextBrowserFileClicked(const QString &file)
 {
-    auto log = textBrowser->log();
+    auto commit = widgetCommitDetails->commit();
 
     Git::File oldFile;
-    const Git::File newFile(mGit, log->commitHash(), file);
-    if (!log->parents().empty()) {
-        oldFile = {mGit, log->parents().first(), file};
+    const Git::File newFile(mGit, commit->commitHash(), file);
+    if (!commit->parents().empty()) {
+        oldFile = {mGit, commit->parents().first(), file};
     }
     auto diffWin = new DiffWindow(oldFile, newFile);
     diffWin->showModal();

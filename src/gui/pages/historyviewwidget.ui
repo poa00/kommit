@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>606</width>
-    <height>505</height>
+    <width>636</width>
+    <height>484</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,25 +17,10 @@
    <iconset theme="git-overview"/>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
-   <property name="leftMargin">
-    <number>0</number>
-   </property>
-   <property name="topMargin">
-    <number>0</number>
-   </property>
-   <property name="rightMargin">
-    <number>0</number>
-   </property>
-   <property name="bottomMargin">
-    <number>0</number>
-   </property>
    <item>
     <widget class="QSplitter" name="splitter">
      <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="childrenCollapsible">
-      <bool>false</bool>
+      <enum>Qt::Horizontal</enum>
      </property>
      <widget class="TreeView" name="treeViewHistory">
       <property name="contextMenuPolicy">
@@ -45,7 +30,26 @@
        <bool>false</bool>
       </property>
      </widget>
-     <widget class="CommitDetails" name="widgetCommit" native="true"/>
+     <widget class="QScrollArea" name="scrollArea">
+      <property name="widgetResizable">
+       <bool>true</bool>
+      </property>
+      <widget class="QWidget" name="scrollAreaWidgetContents">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>81</width>
+         <height>464</height>
+        </rect>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <item>
+         <widget class="CommitDetails" name="widgetCommit" native="true"/>
+        </item>
+       </layout>
+      </widget>
+     </widget>
     </widget>
    </item>
   </layout>

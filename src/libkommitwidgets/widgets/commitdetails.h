@@ -6,6 +6,7 @@
 namespace Git
 {
 class Commit;
+class LogsModel;
 }
 
 class LIBKOMMITWIDGETS_EXPORT CommitDetails : public QWidget, private Ui::CommitDetails
@@ -29,12 +30,23 @@ public:
     Q_REQUIRED_RESULT bool enableFilesLinks() const;
     void setEnableFilesLinks(bool enableFilesLinks);
 
-signals:
+Q_SIGNALS:
+    void hashClicked(const QString &hash);
+    void fileClicked(const QString &file);
+
     void enableCommitsLinksChanged();
     void enableEmailsLinksChanged();
     void enableFilesLinksChanged();
 
 private:
+    void mSlotEmailLinkClicked(const QString &link);
+
+    QString createChangedFiles();
+    QString generateCommitLink(const QString &hash);
+    QString generateCommitsLink(const QStringList &hashes);
+
+    Git::LogsModel *mLogsModel{nullptr};
+
     Git::Commit *mCommit{nullptr};
     bool mEnableCommitsLinks{true};
     bool mEnableEmailsLinks{true};

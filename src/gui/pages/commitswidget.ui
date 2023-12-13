@@ -45,7 +45,7 @@
        <item>
         <widget class="QSplitter" name="splitter">
          <property name="orientation">
-          <enum>Qt::Vertical</enum>
+          <enum>Qt::Horizontal</enum>
          </property>
          <property name="childrenCollapsible">
           <bool>false</bool>
@@ -58,10 +58,25 @@
            <bool>false</bool>
           </property>
          </widget>
-         <widget class="LogDetailsWidget" name="textBrowser">
-          <property name="openLinks">
-           <bool>false</bool>
+         <widget class="QScrollArea" name="scrollArea">
+          <property name="widgetResizable">
+           <bool>true</bool>
           </property>
+          <widget class="QWidget" name="scrollAreaWidgetContents">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>73</width>
+             <height>350</height>
+            </rect>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_2">
+            <item>
+             <widget class="CommitDetails" name="widgetCommitDetails" native="true"/>
+            </item>
+           </layout>
+          </widget>
          </widget>
         </widget>
        </item>
@@ -78,9 +93,10 @@
    <header>core/treeview.h</header>
   </customwidget>
   <customwidget>
-   <class>LogDetailsWidget</class>
-   <extends>QTextBrowser</extends>
-   <header>widgets/logdetailswidget.h</header>
+   <class>CommitDetails</class>
+   <extends>QWidget</extends>
+   <header location="global">widgets/commitdetails.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>

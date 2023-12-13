@@ -74,7 +74,7 @@ void LogDetailsWidget::createText()
         parentHashHtml.append(createHashLink(parent));
 
     QStringList childsHashHtml;
-    for (const auto &child : mLog->childs())
+    for (const auto &child : mLog->children())
         childsHashHtml.append(createHashLink(child));
 
     QString date;
@@ -129,8 +129,8 @@ void LogDetailsWidget::createText()
 
     if (!mLog->parents().empty())
         appendParagraph(html, mLog->parents().size() == 1 ? i18n("Parent") : i18n("Parents"), parentHashHtml.join(QStringLiteral(", ")));
-    if (!mLog->childs().empty())
-        appendParagraph(html, mLog->childs().size() == 1 ? i18n("Child") : i18n("Children"), childsHashHtml.join(QStringLiteral(", ")));
+    if (!mLog->children().empty())
+        appendParagraph(html, mLog->children().size() == 1 ? i18n("Child") : i18n("Children"), childsHashHtml.join(QStringLiteral(", ")));
 
     appendParagraph(html, i18n("Changed files"), filesHtml);
 

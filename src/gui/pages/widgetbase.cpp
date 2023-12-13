@@ -79,7 +79,9 @@ void WidgetBase::save(QSettings &settings, QSplitter *splitter) const
 
 void WidgetBase::restore(QSettings &settings, QSplitter *splitter)
 {
+    auto orientation = splitter->orientation();
     splitter->restoreState(settings.value(stateName(splitter)).toByteArray());
+    splitter->setOrientation(orientation);
 }
 
 void WidgetBase::save(QSettings &settings, QTreeView *treeView) const
