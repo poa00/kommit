@@ -115,19 +115,15 @@ bool FileViewerDialog::showWithParts(const QMimeType &mimeType, const Git::File 
     auto viewer = parts[0];
     auto icon = QIcon::fromTheme(mimeType.iconName()).pixmap(style()->pixelMetric(QStyle::PixelMetric::PM_SmallIconSize));
     setWindowIcon(icon);
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    const auto result = KParts::PartLoader::createPartInstanceForMimeType<KParts::ReadOnlyPart>(mimeType.name(), this, this);
-#else
-    const auto result = KParts::PartLoader::instantiatePart<KParts::ReadOnlyPart>(m_part, this, this);
-#endif
+    const auto result = KParts::PartLoader::instantiatePartForMimeType<KParts::ReadOnlyPart>(mimeType.name(), this, this);
 
-    m_part = result;
+    m_part = result.plugin;
     if (!result) {
         qDebug() << "Failed to create internal viewer";
         return false;
     }
 
-    kPartWidgetLayout->addWidget(result->widget());
+    kPartWidgetLayout->addWidget(m_part->widget());
     stackedWidget->setCurrentIndex(2);
 
     createGUI(m_part.data());
